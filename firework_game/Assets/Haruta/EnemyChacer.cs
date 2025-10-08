@@ -2,163 +2,342 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class EnemyAI : MonoBehaviour
+[RequireComponent(typeof(NavMeshAgent))]
+public class EnemyAI_RandomPatrol : MonoBehaviour
 {
-    public enum EnemyState
-    {
-        Patrol,
-        Detect,
-        Escape
-    }
+    public enum EnemyState { Patrol, Detect, Chase, Search }
 
     [Header("参照")]
     [SerializeField] private Transform player;
-    [SerializeField] private Transform[] patrolPoints;
+
+    [Header("巡回範囲設定")]
+    [SerializeField] private Vector3 patrolCenterOffset = Vector3.zero;
+    [SerializeField] private float patrolRadius = 10f;
 
     [Header("視認設定")]
     [SerializeField] private float viewDistance = 10f;
     [SerializeField] private float viewAngle = 60f;
-    [SerializeField] private LayerMask obstacleMask; // 障害物用レイヤー
+    [SerializeField] private LayerMask obstacleMask;
 
     [Header("移動設定")]
     [SerializeField] private float patrolSpeed = 2f;
-    [SerializeField] private float escapeSpeed = 4f;
+    [SerializeField] private float chaseSpeed = 4f;
+    [SerializeField] private float eyeHeight = 1.5f;
+    [SerializeField] private float searchDuration = 3f;
+    [SerializeField] private float lostSearchTime = 2.5f;
 
-    private int currentPatrolIndex = 0;
+    [Header("巡回中の挙動")]
+    [SerializeField] private float lookAroundInterval = 6f;
+    [SerializeField] private float lookAroundDuration = 2f;
+
+    [Header("クリック反応設定")]
+    [SerializeField] private float clickRange = 8f;
+    [SerializeField] private float moveDuration = 2f;
+    [SerializeField] private float moveSpeed = 1.5f;
+    [SerializeField] private LayerMask groundMask;
+
     private EnemyState currentState = EnemyState.Patrol;
     private NavMeshAgent agent;
     private bool isReacting = false;
+    private bool isLookingAround = false;
+    private bool isClickMoving = false;
+    private float lostTimer = 0f;
+    private float patrolTimer = 0f;
+    private Vector3 patrolCenter;
+    private Quaternion originalRotation;
+    private Coroutine searchCoroutine;
+
+    private Vector3 lastClickPos = Vector3.zero;
+    private bool hasClickPos = false;
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
-        agent.speed = patrolSpeed;
-        GoToNextPatrolPoint();
+        agent.updatePosition = true;
+        agent.updateRotation = true;
+        agent.obstacleAvoidanceType = ObstacleAvoidanceType.HighQualityObstacleAvoidance;
+        agent.radius = 0.4f;
+        agent.height = 2.0f;
+
+        patrolCenter = transform.position + patrolCenterOffset;
     }
 
     void Update()
     {
+        HandleClickInput();
+
+        // 👇 どんな状態でもプレイヤー検知を行う（追記）
+        if (CanSeePlayer())
+        {
+            // クリック移動 or 見回し中なら即キャンセルして追跡に入る
+            if (isClickMoving || isLookingAround)
+            {
+                StopAllCoroutines();
+                if (agent.isOnNavMesh) agent.isStopped = false;
+                isClickMoving = false;
+                isLookingAround = false;
+                currentState = EnemyState.Detect;
+                return;
+            }
+        }
+
         switch (currentState)
         {
             case EnemyState.Patrol:
-                Patrol();
-                if (CanSeePlayer())
-                {
-                    currentState = EnemyState.Detect;
-                }
+                if (!isClickMoving) Patrol();
+                if (CanSeePlayer()) currentState = EnemyState.Detect;
                 break;
 
             case EnemyState.Detect:
-                if (!isReacting)
-                {
-                    StartCoroutine(ReactAndEscape());
-                }
+                if (!isReacting) StartCoroutine(ReactAndChase());
                 break;
 
-            case EnemyState.Escape:
-                Escape();
+            case EnemyState.Chase:
+                Chase();
+                break;
+
+            case EnemyState.Search:
+                // 検索中はコルーチン任せ
                 break;
         }
     }
 
-    // ======================
-    // ▼ 巡回処理
-    // ======================
+    // ==============================
+    // クリック入力と行動
+    // ==============================
+    void HandleClickInput()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out RaycastHit hit, 100f, groundMask))
+            {
+                lastClickPos = hit.point;
+                hasClickPos = true;
+                Debug.Log($"{name}: クリック地点 {lastClickPos}");
+
+                if (Vector3.Distance(transform.position, lastClickPos) <= clickRange)
+                {
+                    StartCoroutine(MoveTowardClick(lastClickPos));
+                }
+            }
+        }
+    }
+
+    IEnumerator MoveTowardClick(Vector3 target)
+    {
+        if (isClickMoving) yield break;
+
+        isClickMoving = true;
+        if (agent.isOnNavMesh) agent.isStopped = true;
+
+        Vector3 direction = (target - transform.position).normalized;
+        direction.y = 0f;
+        Quaternion targetRot = Quaternion.LookRotation(direction);
+        float t = 0f;
+        while (t < 1f)
+        {
+            // 👇 クリック移動中もプレイヤー検知（追記）
+            if (CanSeePlayer())
+            {
+                if (agent.isOnNavMesh) agent.isStopped = false;
+                isClickMoving = false;
+                currentState = EnemyState.Detect;
+                yield break;
+            }
+
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, t);
+            t += Time.deltaTime * 2f;
+            yield return null;
+        }
+
+        float moveTime = 0f;
+        while (moveTime < moveDuration)
+        {
+            // 👇 前進中も検知（追記）
+            if (CanSeePlayer())
+            {
+                if (agent.isOnNavMesh) agent.isStopped = false;
+                isClickMoving = false;
+                currentState = EnemyState.Detect;
+                yield break;
+            }
+
+            transform.position += transform.forward * moveSpeed * Time.deltaTime;
+            moveTime += Time.deltaTime;
+            yield return null;
+        }
+
+        if (agent.isOnNavMesh) agent.isStopped = false;
+        isClickMoving = false;
+    }
+
+    // ==============================
+    // 通常巡回系
+    // ==============================
     void Patrol()
     {
-        if (!agent.pathPending && agent.remainingDistance < 0.5f)
+        if (!agent.isOnNavMesh || agent.pathPending) return;
+
+        patrolTimer += Time.deltaTime;
+
+        if (!isLookingAround && patrolTimer >= lookAroundInterval)
         {
-            GoToNextPatrolPoint();
+            patrolTimer = 0f;
+            StartCoroutine(LookAroundRoutine());
+            return;
+        }
+
+        if (!agent.hasPath || agent.remainingDistance <= agent.stoppingDistance + 0.05f)
+        {
+            GoToNextRandomPatrolPoint();
         }
     }
 
-    void GoToNextPatrolPoint()
+    void GoToNextRandomPatrolPoint()
     {
-        if (patrolPoints.Length == 0) return;
-        agent.destination = patrolPoints[currentPatrolIndex].position;
-        currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Length;
+        Vector3 randomPoint = GetRandomPointOnNavMesh(patrolCenter, patrolRadius);
+        agent.speed = patrolSpeed;
+        agent.SetDestination(randomPoint);
     }
 
-    // ======================
-    // ▼ 発見処理
-    // ======================
-    IEnumerator ReactAndEscape()
+    Vector3 GetRandomPointOnNavMesh(Vector3 center, float radius)
+    {
+        for (int i = 0; i < 20; i++)
+        {
+            Vector3 randomPos = center + Random.insideUnitSphere * radius;
+            if (NavMesh.SamplePosition(randomPos, out NavMeshHit hit, 2f, NavMesh.AllAreas))
+                return hit.position;
+        }
+        return center;
+    }
+
+    IEnumerator ReactAndChase()
     {
         isReacting = true;
-        agent.isStopped = true;
+        if (agent.isOnNavMesh) agent.isStopped = true;
+        yield return new WaitForSeconds(1f);
 
-        // 例：リアクションアニメ or SE再生
-        Debug.Log("プレイヤーを発見！リアクション中...");
-
-        yield return new WaitForSeconds(1.0f);
-
-        currentState = EnemyState.Escape;
-        agent.isStopped = false;
-        agent.speed = escapeSpeed;
-
+        if (agent.isOnNavMesh) agent.isStopped = false;
+        agent.speed = chaseSpeed;
+        currentState = EnemyState.Chase;
         isReacting = false;
     }
 
-    // ======================
-    // ▼ 逃走処理
-    // ======================
-    void Escape()
+    void Chase()
     {
-        Vector3 dirToPlayer = (transform.position - player.position).normalized;
-        Vector3 escapeTarget = transform.position + dirToPlayer * 5f;
-
-        NavMeshHit hit;
-        if (NavMesh.SamplePosition(escapeTarget, out hit, 5f, NavMesh.AllAreas))
+        if (!agent.isOnNavMesh)
         {
-            agent.SetDestination(hit.position);
+            currentState = EnemyState.Patrol;
+            agent.speed = patrolSpeed;
+            GoToNextRandomPatrolPoint();
+            return;
         }
 
-        if (Vector3.Distance(transform.position, player.position) > viewDistance * 2f)
+        if (CanSeePlayer())
         {
-            agent.speed = patrolSpeed;
-            currentState = EnemyState.Patrol;
-            GoToNextPatrolPoint();
+            agent.SetDestination(player.position);
+            lostTimer = 0f;
+        }
+        else
+        {
+            lostTimer += Time.deltaTime;
+            if (lostTimer >= lostSearchTime)
+            {
+                lostTimer = 0f;
+                StartSearch();
+            }
         }
     }
 
-    // ======================
-    // ▼ 視認判定（視野角＋遮蔽）
-    // ======================
+    void StartSearch()
+    {
+        if (searchCoroutine != null)
+            StopCoroutine(searchCoroutine);
+        searchCoroutine = StartCoroutine(SearchRoutine());
+    }
+
+    IEnumerator SearchRoutine()
+    {
+        currentState = EnemyState.Search;
+        agent.isStopped = true;
+        originalRotation = transform.rotation;
+
+        float elapsed = 0f;
+        while (elapsed < searchDuration)
+        {
+            float angle = Mathf.Sin(elapsed * 2f) * 90f;
+            transform.rotation = originalRotation * Quaternion.Euler(0, angle, 0);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        agent.isStopped = false;
+        agent.speed = patrolSpeed;
+        currentState = EnemyState.Patrol;
+        GoToNextRandomPatrolPoint();
+    }
+
+    IEnumerator LookAroundRoutine()
+    {
+        isLookingAround = true;
+        if (agent.isOnNavMesh) agent.isStopped = true;
+        originalRotation = transform.rotation;
+
+        float elapsed = 0f;
+        while (elapsed < lookAroundDuration)
+        {
+            // 👇 見回し中も検知（追記）
+            if (CanSeePlayer())
+            {
+                if (agent.isOnNavMesh) agent.isStopped = false;
+                isLookingAround = false;
+                currentState = EnemyState.Detect;
+                yield break;
+            }
+
+            float angle = Mathf.Sin(elapsed * 2f) * 60f;
+            transform.rotation = originalRotation * Quaternion.Euler(0, angle, 0);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        if (agent.isOnNavMesh) agent.isStopped = false;
+        isLookingAround = false;
+        GoToNextRandomPatrolPoint();
+    }
+
     bool CanSeePlayer()
     {
-        Vector3 dirToPlayer = (player.position - transform.position).normalized;
-
-        float angle = Vector3.Angle(transform.forward, dirToPlayer);
-        float distance = Vector3.Distance(transform.position, player.position);
-
+        if (player == null) return false;
+        Vector3 origin = transform.position + Vector3.up * eyeHeight;
+        Vector3 toPlayer = player.position - origin;
+        float distance = toPlayer.magnitude;
         if (distance > viewDistance) return false;
-        if (angle > viewAngle / 2f) return false;
 
-        // Raycastで遮蔽物チェック
-        if (Physics.Raycast(transform.position + Vector3.up * 1.5f, dirToPlayer, out RaycastHit hit, viewDistance, ~0))
-        {
-            if (hit.transform == player)
-            {
-                return true;
-            }
-        }
+        Vector3 dir = toPlayer.normalized;
+        float angle = Vector3.Angle(transform.forward, dir);
+        if (angle > viewAngle * 0.5f) return false;
+
+        if (obstacleMask != 0 && Physics.Raycast(origin, dir, out RaycastHit hit, distance, obstacleMask))
+            return false;
+
+        if (Physics.Raycast(origin, dir, out RaycastHit finalHit, distance))
+            return finalHit.transform == player;
+
         return false;
     }
 
-    // ======================
-    // ▼ デバッグ視野表示
-    // ======================
     private void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, viewDistance);
-
-        Vector3 leftBoundary = Quaternion.Euler(0, -viewAngle / 2f, 0) * transform.forward;
-        Vector3 rightBoundary = Quaternion.Euler(0, viewAngle / 2f, 0) * transform.forward;
-
         Gizmos.color = Color.cyan;
-        Gizmos.DrawLine(transform.position, transform.position + leftBoundary * viewDistance);
-        Gizmos.DrawLine(transform.position, transform.position + rightBoundary * viewDistance);
+        Vector3 center = Application.isPlaying ? patrolCenter : transform.position + patrolCenterOffset;
+        Gizmos.DrawWireSphere(center, patrolRadius);
+
+        if (hasClickPos)
+        {
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawWireSphere(lastClickPos, clickRange);
+        }
     }
 }
-
