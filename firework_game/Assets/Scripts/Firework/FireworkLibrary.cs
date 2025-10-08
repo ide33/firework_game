@@ -5,6 +5,7 @@ public class FireworkLibrary : ScriptableObject
 {
     [SerializeField] private FireworkData[] fireworkDatas;
 
+    // 花火の検索
     public FireworkData GetFireworkData(int index)
     {
         if (index < 0 || index >= fireworkDatas.Length)

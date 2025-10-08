@@ -2,7 +2,10 @@ using UnityEngine;
 
 public class FireworkManager : MonoBehaviour
 {
+    // FireworkLibraryのSO
     [SerializeField] private FireworkLibrary fireworkLibrary;
+
+    // 現在の花火
     private FireworkData currentFireworkData;
 
     void Update()
@@ -11,13 +14,9 @@ public class FireworkManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha2)) SelectFirework(1);
         if (Input.GetKeyDown(KeyCode.Alpha3)) SelectFirework(2);
         if (Input.GetKeyDown(KeyCode.Alpha4)) SelectFirework(3);
-
-        // if (Input.GetKeyDown(KeyCode.Space))
-        // {
-        //     LaunchFirework();
-        // }
     }
-
+    
+    // 花火の切り替え 
     void SelectFirework(int index)
     {
         currentFireworkData = fireworkLibrary.GetFireworkData(index);
@@ -27,6 +26,7 @@ public class FireworkManager : MonoBehaviour
         }
     }
 
+    // 花火発射
     public void LaunchFirework()
     {
         if (currentFireworkData == null)
@@ -39,6 +39,7 @@ public class FireworkManager : MonoBehaviour
         Debug.Log($"{currentFireworkData.FireworkName} を打ち上げました");
     }
 
+    // 爆発までのディレイ
     private System.Collections.IEnumerator Launch()
     {
        if (currentFireworkData.FireworkSE != null)
