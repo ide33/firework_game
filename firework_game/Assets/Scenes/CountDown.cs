@@ -13,7 +13,7 @@ public class CountDown : MonoBehaviour
     {
         TimerText = GetComponent<Text>();
         TIMEUPText = GetComponent<Text>();
-        countdownSeconds = countdownMinutes * 180;
+        countdownSeconds = countdownMinutes * 60;
     }
 
     void Update()
