@@ -13,10 +13,11 @@ GameObject:
   - component: {fileID: 2718743494198535198}
   - component: {fileID: 9218621193548186639}
   - component: {fileID: 7659964679070210889}
+  - component: {fileID: 898915743864892080}
   - component: {fileID: 2275955416705801509}
   m_Layer: 0
   m_Name: Cube
-  m_TagString: Untagged
+  m_TagString: Police
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -125,6 +126,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 0}
   visionRenderer: {fileID: 0}
+  aiData: {fileID: 11400000, guid: 3fe389ef813c14149a9d03d2f49ddfd8, type: 2}
+--- !u!114 &898915743864892080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2173397630525299599}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b56857839493cc249b9c0e89307b675e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   aiData: {fileID: 11400000, guid: 3fe389ef813c14149a9d03d2f49ddfd8, type: 2}
 --- !u!195 &2275955416705801509
 NavMeshAgent:
