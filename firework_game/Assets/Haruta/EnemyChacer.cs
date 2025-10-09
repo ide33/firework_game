@@ -26,6 +26,10 @@ public class EnemyAI_RandomPatrol : MonoBehaviour
     private Coroutine searchCoroutine;
     private Vector3 lastClickPos = Vector3.zero;
     private bool hasClickPos = false;
+    public void AssignPlayer(Transform playerTransform)
+    {
+        player = playerTransform;
+    }
 
     void Start()
     {
