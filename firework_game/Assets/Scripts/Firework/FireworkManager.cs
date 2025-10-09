@@ -12,10 +12,10 @@ public class FireworkManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha3)) SelectFirework(2);
         if (Input.GetKeyDown(KeyCode.Alpha4)) SelectFirework(3);
 
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            LaunchFirework();
-        }
+        // if (Input.GetKeyDown(KeyCode.Space))
+        // {
+        //     LaunchFirework();
+        // }
     }
 
     void SelectFirework(int index)
@@ -27,7 +27,7 @@ public class FireworkManager : MonoBehaviour
         }
     }
 
-    void LaunchFirework()
+    public void LaunchFirework()
     {
         if (currentFireworkData == null)
         {
