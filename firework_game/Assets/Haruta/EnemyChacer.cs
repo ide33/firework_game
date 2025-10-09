@@ -9,32 +9,10 @@ public class EnemyAI_RandomPatrol : MonoBehaviour
 
     [Header("参照")]
     [SerializeField] private Transform player;
+    [SerializeField] private LineRenderer visionRenderer;
 
-    [Header("巡回範囲設定")]
-    [SerializeField] private Vector3 patrolCenterOffset = Vector3.zero;
-    [SerializeField] private float patrolRadius = 10f;
-
-    [Header("視認設定")]
-    [SerializeField] private float viewDistance = 10f;
-    [SerializeField] private float viewAngle = 60f;
-    [SerializeField] private LayerMask obstacleMask;
-
-    [Header("移動設定")]
-    [SerializeField] private float patrolSpeed = 2f;
-    [SerializeField] private float chaseSpeed = 4f;
-    [SerializeField] private float eyeHeight = 1.5f;
-    [SerializeField] private float searchDuration = 3f;
-    [SerializeField] private float lostSearchTime = 2.5f;
-
-    [Header("巡回中の挙動")]
-    [SerializeField] private float lookAroundInterval = 6f;
-    [SerializeField] private float lookAroundDuration = 2f;
-
-    [Header("クリック反応設定")]
-    [SerializeField] private float clickRange = 8f;
-    [SerializeField] private float moveDuration = 2f;
-    [SerializeField] private float moveSpeed = 1.5f;
-    [SerializeField] private LayerMask groundMask;
+    [Header("AI設定データ (ScriptableObject)")]
+    [SerializeField] private EnemyAIData aiData;
 
     private EnemyState currentState = EnemyState.Patrol;
     private NavMeshAgent agent;
@@ -46,7 +24,6 @@ public class EnemyAI_RandomPatrol : MonoBehaviour
     private Vector3 patrolCenter;
     private Quaternion originalRotation;
     private Coroutine searchCoroutine;
-
     private Vector3 lastClickPos = Vector3.zero;
     private bool hasClickPos = false;
 
@@ -59,27 +36,23 @@ public class EnemyAI_RandomPatrol : MonoBehaviour
         agent.radius = 0.4f;
         agent.height = 2.0f;
 
-        patrolCenter = transform.position + patrolCenterOffset;
+        patrolCenter = transform.position + aiData.patrolCenterOffset;
+
+        if (visionRenderer == null)
+        {
+            GameObject visionObj = new GameObject("VisionRenderer");
+            visionObj.transform.SetParent(transform);
+            visionRenderer = visionObj.AddComponent<LineRenderer>();
+            visionRenderer.useWorldSpace = false;
+            visionRenderer.loop = true;
+            visionRenderer.widthMultiplier = 0.05f;
+        }
     }
 
     void Update()
     {
         HandleClickInput();
-
-        // 👇 どんな状態でもプレイヤー検知を行う（追記）
-        if (CanSeePlayer())
-        {
-            // クリック移動 or 見回し中なら即キャンセルして追跡に入る
-            if (isClickMoving || isLookingAround)
-            {
-                StopAllCoroutines();
-                if (agent.isOnNavMesh) agent.isStopped = false;
-                isClickMoving = false;
-                isLookingAround = false;
-                currentState = EnemyState.Detect;
-                return;
-            }
-        }
+        UpdateVisionDisplay();
 
         switch (currentState)
         {
@@ -97,9 +70,40 @@ public class EnemyAI_RandomPatrol : MonoBehaviour
                 break;
 
             case EnemyState.Search:
-                // 検索中はコルーチン任せ
                 break;
         }
+    }
+
+    // ==============================
+    // 視野の表示処理
+    // ==============================
+    void UpdateVisionDisplay()
+    {
+        if (visionRenderer == null) return;
+
+        int segments = 30;
+        float halfAngle = aiData.viewAngle * 0.5f;
+        float step = aiData.viewAngle / (segments - 1);
+
+        Vector3 origin = transform.position + Vector3.up * aiData.eyeHeight;
+        Vector3[] points = new Vector3[segments + 2];
+        points[0] = origin;
+
+        for (int i = 0; i <= segments; i++)
+        {
+            float angle = -halfAngle + i * step;
+            Quaternion rot = Quaternion.Euler(0, angle, 0);
+            Vector3 dir = transform.rotation * rot * Vector3.forward;
+            points[i + 1] = origin + dir * aiData.viewDistance;
+        }
+
+        visionRenderer.useWorldSpace = true;
+        visionRenderer.positionCount = points.Length;
+        visionRenderer.SetPositions(points);
+
+        Color col = CanSeePlayer() ? Color.red : new Color(1f, 0.5f, 0f, 0.6f);
+        visionRenderer.startColor = col;
+        visionRenderer.endColor = col;
     }
 
     // ==============================
@@ -110,13 +114,12 @@ public class EnemyAI_RandomPatrol : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit, 100f, groundMask))
+            if (Physics.Raycast(ray, out RaycastHit hit, 100f, aiData.groundMask))
             {
                 lastClickPos = hit.point;
                 hasClickPos = true;
-                Debug.Log($"{name}: クリック地点 {lastClickPos}");
 
-                if (Vector3.Distance(transform.position, lastClickPos) <= clickRange)
+                if (Vector3.Distance(transform.position, lastClickPos) <= aiData.clickRange)
                 {
                     StartCoroutine(MoveTowardClick(lastClickPos));
                 }
@@ -135,35 +138,18 @@ public class EnemyAI_RandomPatrol : MonoBehaviour
         direction.y = 0f;
         Quaternion targetRot = Quaternion.LookRotation(direction);
         float t = 0f;
+
         while (t < 1f)
         {
-            // 👇 クリック移動中もプレイヤー検知（追記）
-            if (CanSeePlayer())
-            {
-                if (agent.isOnNavMesh) agent.isStopped = false;
-                isClickMoving = false;
-                currentState = EnemyState.Detect;
-                yield break;
-            }
-
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, t);
             t += Time.deltaTime * 2f;
             yield return null;
         }
 
         float moveTime = 0f;
-        while (moveTime < moveDuration)
+        while (moveTime < aiData.moveDuration)
         {
-            // 👇 前進中も検知（追記）
-            if (CanSeePlayer())
-            {
-                if (agent.isOnNavMesh) agent.isStopped = false;
-                isClickMoving = false;
-                currentState = EnemyState.Detect;
-                yield break;
-            }
-
-            transform.position += transform.forward * moveSpeed * Time.deltaTime;
+            transform.position += transform.forward * aiData.moveSpeed * Time.deltaTime;
             moveTime += Time.deltaTime;
             yield return null;
         }
@@ -180,8 +166,7 @@ public class EnemyAI_RandomPatrol : MonoBehaviour
         if (!agent.isOnNavMesh || agent.pathPending) return;
 
         patrolTimer += Time.deltaTime;
-
-        if (!isLookingAround && patrolTimer >= lookAroundInterval)
+        if (!isLookingAround && patrolTimer >= aiData.lookAroundInterval)
         {
             patrolTimer = 0f;
             StartCoroutine(LookAroundRoutine());
@@ -196,8 +181,8 @@ public class EnemyAI_RandomPatrol : MonoBehaviour
 
     void GoToNextRandomPatrolPoint()
     {
-        Vector3 randomPoint = GetRandomPointOnNavMesh(patrolCenter, patrolRadius);
-        agent.speed = patrolSpeed;
+        Vector3 randomPoint = GetRandomPointOnNavMesh(patrolCenter, aiData.patrolRadius);
+        agent.speed = aiData.patrolSpeed;
         agent.SetDestination(randomPoint);
     }
 
@@ -219,7 +204,7 @@ public class EnemyAI_RandomPatrol : MonoBehaviour
         yield return new WaitForSeconds(1f);
 
         if (agent.isOnNavMesh) agent.isStopped = false;
-        agent.speed = chaseSpeed;
+        agent.speed = aiData.chaseSpeed;
         currentState = EnemyState.Chase;
         isReacting = false;
     }
@@ -229,7 +214,7 @@ public class EnemyAI_RandomPatrol : MonoBehaviour
         if (!agent.isOnNavMesh)
         {
             currentState = EnemyState.Patrol;
-            agent.speed = patrolSpeed;
+            agent.speed = aiData.patrolSpeed;
             GoToNextRandomPatrolPoint();
             return;
         }
@@ -242,7 +227,7 @@ public class EnemyAI_RandomPatrol : MonoBehaviour
         else
         {
             lostTimer += Time.deltaTime;
-            if (lostTimer >= lostSearchTime)
+            if (lostTimer >= aiData.lostSearchTime)
             {
                 lostTimer = 0f;
                 StartSearch();
@@ -264,7 +249,7 @@ public class EnemyAI_RandomPatrol : MonoBehaviour
         originalRotation = transform.rotation;
 
         float elapsed = 0f;
-        while (elapsed < searchDuration)
+        while (elapsed < aiData.searchDuration)
         {
             float angle = Mathf.Sin(elapsed * 2f) * 90f;
             transform.rotation = originalRotation * Quaternion.Euler(0, angle, 0);
@@ -273,7 +258,7 @@ public class EnemyAI_RandomPatrol : MonoBehaviour
         }
 
         agent.isStopped = false;
-        agent.speed = patrolSpeed;
+        agent.speed = aiData.patrolSpeed;
         currentState = EnemyState.Patrol;
         GoToNextRandomPatrolPoint();
     }
@@ -285,17 +270,8 @@ public class EnemyAI_RandomPatrol : MonoBehaviour
         originalRotation = transform.rotation;
 
         float elapsed = 0f;
-        while (elapsed < lookAroundDuration)
+        while (elapsed < aiData.lookAroundDuration)
         {
-            // 👇 見回し中も検知（追記）
-            if (CanSeePlayer())
-            {
-                if (agent.isOnNavMesh) agent.isStopped = false;
-                isLookingAround = false;
-                currentState = EnemyState.Detect;
-                yield break;
-            }
-
             float angle = Mathf.Sin(elapsed * 2f) * 60f;
             transform.rotation = originalRotation * Quaternion.Euler(0, angle, 0);
             elapsed += Time.deltaTime;
@@ -310,16 +286,16 @@ public class EnemyAI_RandomPatrol : MonoBehaviour
     bool CanSeePlayer()
     {
         if (player == null) return false;
-        Vector3 origin = transform.position + Vector3.up * eyeHeight;
+        Vector3 origin = transform.position + Vector3.up * aiData.eyeHeight;
         Vector3 toPlayer = player.position - origin;
         float distance = toPlayer.magnitude;
-        if (distance > viewDistance) return false;
+        if (distance > aiData.viewDistance) return false;
 
         Vector3 dir = toPlayer.normalized;
         float angle = Vector3.Angle(transform.forward, dir);
-        if (angle > viewAngle * 0.5f) return false;
+        if (angle > aiData.viewAngle * 0.5f) return false;
 
-        if (obstacleMask != 0 && Physics.Raycast(origin, dir, out RaycastHit hit, distance, obstacleMask))
+        if (aiData.obstacleMask != 0 && Physics.Raycast(origin, dir, out RaycastHit hit, distance, aiData.obstacleMask))
             return false;
 
         if (Physics.Raycast(origin, dir, out RaycastHit finalHit, distance))
@@ -330,14 +306,16 @@ public class EnemyAI_RandomPatrol : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
+        if (Application.isPlaying) return;
+
         Gizmos.color = Color.cyan;
-        Vector3 center = Application.isPlaying ? patrolCenter : transform.position + patrolCenterOffset;
-        Gizmos.DrawWireSphere(center, patrolRadius);
+        Vector3 center = transform.position + aiData.patrolCenterOffset;
+        Gizmos.DrawWireSphere(center, aiData.patrolRadius);
 
         if (hasClickPos)
         {
             Gizmos.color = Color.magenta;
-            Gizmos.DrawWireSphere(lastClickPos, clickRange);
+            Gizmos.DrawWireSphere(lastClickPos, aiData.clickRange);
         }
     }
 }
