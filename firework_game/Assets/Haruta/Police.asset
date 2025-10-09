@@ -21,15 +21,15 @@ MonoBehaviour:
   obstacleMask:
     serializedVersion: 2
     m_Bits: 256
-  patrolSpeed: 2
-  chaseSpeed: 4
+  patrolSpeed: 4
+  chaseSpeed: 6
   searchDuration: 3
   lostSearchTime: 2.5
   lookAroundInterval: 6
   lookAroundDuration: 2
-  clickRange: 8
-  moveDuration: 2
-  moveSpeed: 1.5
+  clickRange: 100
+  moveDuration: 5
+  moveSpeed: 4
   groundMask:
     serializedVersion: 2
     m_Bits: 384

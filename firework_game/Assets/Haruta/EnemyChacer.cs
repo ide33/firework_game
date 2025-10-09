@@ -54,29 +54,25 @@ public class EnemyAI_RandomPatrol : MonoBehaviour
     }
 
     void Update()
+{
+    UpdateVisionDisplay();
+
+    switch (currentState)
     {
-        HandleClickInput();
-        UpdateVisionDisplay();
-
-        switch (currentState)
-        {
-            case EnemyState.Patrol:
-                if (!isClickMoving) Patrol();
-                if (CanSeePlayer()) currentState = EnemyState.Detect;
-                break;
-
-            case EnemyState.Detect:
-                if (!isReacting) StartCoroutine(ReactAndChase());
-                break;
-
-            case EnemyState.Chase:
-                Chase();
-                break;
-
-            case EnemyState.Search:
-                break;
-        }
+        case EnemyState.Patrol:
+            Patrol();
+            if (CanSeePlayer()) currentState = EnemyState.Detect;
+            break;
+        case EnemyState.Detect:
+            if (!isReacting) StartCoroutine(ReactAndChase());
+            break;
+        case EnemyState.Chase:
+            Chase();
+            break;
+        case EnemyState.Search:
+            break;
     }
+}
 
     // ==============================
     // 視野の表示処理
@@ -109,59 +105,6 @@ public class EnemyAI_RandomPatrol : MonoBehaviour
         visionRenderer.startColor = col;
         visionRenderer.endColor = col;
     }
-
-    // ==============================
-    // クリック入力と行動
-    // ==============================
-    void HandleClickInput()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit, 100f, aiData.groundMask))
-            {
-                lastClickPos = hit.point;
-                hasClickPos = true;
-
-                if (Vector3.Distance(transform.position, lastClickPos) <= aiData.clickRange)
-                {
-                    StartCoroutine(MoveTowardClick(lastClickPos));
-                }
-            }
-        }
-    }
-
-    IEnumerator MoveTowardClick(Vector3 target)
-    {
-        if (isClickMoving) yield break;
-
-        isClickMoving = true;
-        if (agent.isOnNavMesh) agent.isStopped = true;
-
-        Vector3 direction = (target - transform.position).normalized;
-        direction.y = 0f;
-        Quaternion targetRot = Quaternion.LookRotation(direction);
-        float t = 0f;
-
-        while (t < 1f)
-        {
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, t);
-            t += Time.deltaTime * 2f;
-            yield return null;
-        }
-
-        float moveTime = 0f;
-        while (moveTime < aiData.moveDuration)
-        {
-            transform.position += transform.forward * aiData.moveSpeed * Time.deltaTime;
-            moveTime += Time.deltaTime;
-            yield return null;
-        }
-
-        if (agent.isOnNavMesh) agent.isStopped = false;
-        isClickMoving = false;
-    }
-
     // ==============================
     // 通常巡回系
     // ==============================
