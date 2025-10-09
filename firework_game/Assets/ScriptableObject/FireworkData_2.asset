@@ -16,4 +16,5 @@ MonoBehaviour:
   explosionDelay: 5
   range: 5
   score: 2
+  fireworkModel: {fileID: 919132149155446097, guid: 0f587e96f2c38cd40b3665bb8085b049, type: 3}
   fireworkSE: {fileID: 0}
