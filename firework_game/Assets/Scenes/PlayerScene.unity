@@ -328,7 +328,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   npcTag: NPC
   searchRadius: 2
-  rocketPrefab: {fileID: 919132149155446097, guid: 84eabb85f5ee66f4199ad5678a48559c, type: 3}
+  rocketPrefab: {fileID: 96760523068736523, guid: 390ff9b421605e54da4709fe1019d227, type: 3}
   firePoint: {fileID: 1306322897}
 --- !u!1 &1306322896
 GameObject:
