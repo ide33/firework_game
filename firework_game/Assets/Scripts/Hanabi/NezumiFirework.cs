@@ -1,31 +1,47 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class NezumiFirework : MonoBehaviour
 {
-    public ParticleSystem fireParticle;
+    [Header("複数のエフェクトを登録")]
+    public List<ParticleSystem> fireParticles = new List<ParticleSystem>();
+
     public float spinSpeed = 720f; // 回転速度（度/秒）
-    public float moveSpeed = 2f;   // 前進スピード
+    public float lifetime = 5f;    // 生存時間（秒）
 
-    private Vector3 moveDir;
-
-    void Start()
-    {
-        fireParticle.Play();
-
-        // ランダムな進行方向を決定
-        float randomAngle = Random.Range(0f, 360f);
-        moveDir = new Vector3(Mathf.Cos(randomAngle), 0, Mathf.Sin(randomAngle));
-    }
+    private bool hasStarted = false;
+    private float timer = 0f;
 
     void Update()
     {
-        // 自転（回転）
-        transform.Rotate(Vector3.up, spinSpeed * Time.deltaTime);
+        // 左クリックで起動（1回だけ）
+        if (Input.GetMouseButtonDown(0) && !hasStarted)
+        {
+            hasStarted = true;
 
-        // 前進
-        transform.position += moveDir * moveSpeed * Time.deltaTime;
+            // 登録された全エフェクトを再生
+            foreach (var ps in fireParticles)
+            {
+                if (ps != null)
+                    ps.Play();
+            }
+        }
 
-        // 地面との高さを固定（例：y=0.5）
-        transform.position = new Vector3(transform.position.x, 0.5f, transform.position.z);
+        // 起動後の処理
+        if (hasStarted)
+        {
+            // 回転
+            transform.Rotate(Vector3.up, spinSpeed * Time.deltaTime);
+
+            // 高さ固定
+            transform.position = new Vector3(transform.position.x, 0.5f, transform.position.z);
+
+            // 寿命カウント
+            timer += Time.deltaTime;
+            if (timer >= lifetime)
+            {
+                Destroy(gameObject);
+            }
+        }
     }
 }
