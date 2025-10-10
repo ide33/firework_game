@@ -17,7 +17,13 @@ public class SphereNPCDestroyer : MonoBehaviour
     public float particleScale = 1f;  // パーティクルの大きさ
     public Vector3 fixedRotation = Vector3.zero; // パーティクル生成時の固定角度
 
+    [Header("スコア関連")]
+    public FireworkLibrary fireworkLibrary; // 花火データ集
+    public int fireworkIndex = 0;           // 使用する花火データのインデックス
+    public ScoreData scoreData;             // 合計スコアSO
+
     private List<Vector3> destroyedNPCPositions = new List<Vector3>();
+    private int destroyedNPCCount = 0; // 破壊したNPCの数
 
     void Start()
     {
@@ -40,6 +46,7 @@ public class SphereNPCDestroyer : MonoBehaviour
         rb.useGravity = false;
         rb.isKinematic = true;
 
+        // 一定時間後に自壊
         Destroy(gameObject, selfDestructTime);
     }
 
@@ -63,25 +70,46 @@ public class SphereNPCDestroyer : MonoBehaviour
     {
         Vector3 npcPos = npc.transform.position;
 
+        // 同じ位置のNPCを重複カウントしない
         if (!destroyedNPCPositions.Contains(npcPos))
         {
             destroyedNPCPositions.Add(npcPos);
-            Debug.Log($"SphereNPCDestroyer: NPC検出 - {npc.name} 位置: {npcPos}");
+            destroyedNPCCount++;
+
+            Debug.Log($"SphereNPCDestroyer: NPC検出 - {npc.name} 位置: {npcPos}（累計破壊数: {destroyedNPCCount}）");
 
             Destroy(npc, destroyDelay);
 
-            // パーティクルを生成
+            // パーティクル生成
             if (particlePrefab != null)
             {
-                Quaternion rotation = Quaternion.Euler(fixedRotation); // 固定角度を使用
+                Quaternion rotation = Quaternion.Euler(fixedRotation);
                 GameObject particle = Instantiate(particlePrefab, npcPos, rotation);
-
-                // スケール調整
                 particle.transform.localScale = Vector3.one * particleScale;
-
-                // 任意で自動削除（5秒後など）
                 Destroy(particle, 5f);
             }
+
+            // スコア加算処理
+            AddScoreFromFireworkLibrary();
+        }
+    }
+
+    void AddScoreFromFireworkLibrary()
+    {
+        if (fireworkLibrary == null || scoreData == null)
+            return;
+
+        FireworkData data = fireworkLibrary.GetFireworkData(fireworkIndex);
+        if (data != null)
+        {
+            int addScore = data.Score;
+            scoreData.AddScore(addScore);
+
+            Debug.Log($"スコア +{addScore} （花火: {data.name}） 合計スコア: {scoreData.totalScore}");
+        }
+        else
+        {
+            Debug.LogWarning($"FireworkLibrary: インデックス {fireworkIndex} のデータが存在しません。");
         }
     }
 }
