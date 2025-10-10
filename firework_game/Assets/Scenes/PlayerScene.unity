@@ -165,6 +165,7 @@ GameObject:
   - component: {fileID: 871886898}
   - component: {fileID: 871886897}
   - component: {fileID: 871886899}
+  - component: {fileID: 871886900}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -257,7 +258,7 @@ Transform:
   m_GameObject: {fileID: 871886892}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -13.8133955, y: 1.45, z: -63.30124}
+  m_LocalPosition: {x: 0, y: 1.45, z: -63.30124}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -327,6 +328,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fireworkManager: {fileID: 2074051104}
+  npcTag: NPC
+  searchRadius: 10
+--- !u!114 &871886900
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 871886892}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5db77553b954c2419bb8ba1750a3fc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  particlePrefab: {fileID: 633207047825701786, guid: e16fa4682721c5b4989c2b0446795137, type: 3}
+  firePoint: {fileID: 1306322897}
+  particleSpeed: 50
+  particleLifetime: 5
+  cubePrefab: {fileID: 549596999030387279, guid: e1feca0c5c4a09343a3429e0df31d9a8, type: 3}
+  cubeSpeed: 50
+  cubeLifetime: 5
+  spherePrefab: {fileID: 0}
+  fireRate: 0.5
 --- !u!1 &1306322896
 GameObject:
   m_ObjectHideFlags: 0
@@ -488,7 +512,7 @@ Transform:
   m_GameObject: {fileID: 1354609044}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -10.79, y: 1.48, z: -66.47}
+  m_LocalPosition: {x: -20, y: 1.48, z: -66.47}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -597,7 +621,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -13.8133955, y: 0, z: -63.30124}
-  m_LocalScale: {x: 10, y: 1, z: 10}
+  m_LocalScale: {x: 50, y: 1, z: 50}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}

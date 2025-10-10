@@ -47,18 +47,6 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         HandleMouseLock();
-
-        // if (Input.GetMouseButtonDown(0))
-        // {
-        //     if (fireworkManager != null)
-        //     {
-        //         fireworkManager.LaunchFirework();
-        //     }
-        //     else
-        //     {
-        //         Debug.Log("FireworkManagerが設定されていません");
-        //     }
-        // }
     }
 
     // 物理演算のタイミングで呼ばれる
