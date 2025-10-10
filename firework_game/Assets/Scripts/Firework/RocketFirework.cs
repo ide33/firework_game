@@ -59,24 +59,24 @@ public class RocketFirework : MonoBehaviour
     /// NPCにロケット花火をアタッチする処理
     /// </summary>
     private void AttachRocket(GameObject npc)
-{
-    if (rocketPrefab == null)
     {
-        Debug.LogWarning("Rocket Prefab が設定されていません。");
-        return;
+        if (rocketPrefab == null)
+        {
+            Debug.LogWarning("Rocket Prefab が設定されていません。");
+            return;
+        }
+
+        // NPCの位置にロケット花火を生成
+        GameObject rocketInstance = Instantiate(rocketPrefab, npc.transform);
+
+        // NPCの中央付近につけたい場合
+        rocketInstance.transform.localPosition = new Vector3(0, 1f, 0);
+
+        Debug.Log($"{npc.name} にロケット花火を取り付けました！");
+
+        // 🎆 3秒後に自動削除
+        Destroy(rocketInstance, 3f);
     }
-
-    // NPCの位置にロケット花火を生成
-    GameObject rocketInstance = Instantiate(rocketPrefab, npc.transform);
-
-    // NPCの中央付近につけたい場合
-    rocketInstance.transform.localPosition = new Vector3(0, 1f, 0);
-
-    Debug.Log($"{npc.name} にロケット花火を取り付けました！");
-
-    // 🎆 3秒後に自動削除
-    Destroy(rocketInstance, 3f);
-}
 
     /// <summary>
     /// NPC探索範囲をシーン上で可視化（デバッグ用）
