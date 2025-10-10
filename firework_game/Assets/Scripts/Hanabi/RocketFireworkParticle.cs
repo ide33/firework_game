@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class RocketFirework : MonoBehaviour
+public class RocketFireworkParticle : MonoBehaviour
 {
     public ParticleSystem particleEffect; // 対象のパーティクル（インスペクタで設定）
 
