@@ -69,12 +69,13 @@ public class RocketFirework : MonoBehaviour
         // NPCの位置にロケット花火を生成
         GameObject rocketInstance = Instantiate(rocketPrefab, npc.transform);
 
-        // NPCの頭上などに少しずらしてつけたい場合
+        // NPCの中央付近につけたい場合
         rocketInstance.transform.localPosition = new Vector3(0, 1f, 0);
 
         Debug.Log($"{npc.name} にロケット花火を取り付けました！");
 
-        // 任意で爆発処理などを後で追加
+        // 🎆 3秒後に自動削除
+        Destroy(rocketInstance, 3f);
     }
 
     /// <summary>
