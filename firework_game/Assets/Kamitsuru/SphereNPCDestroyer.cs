@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class SphereNPCDestroyer : MonoBehaviour
 {
@@ -11,6 +12,13 @@ public class SphereNPCDestroyer : MonoBehaviour
     [Header("自己消滅設定")]
     public float selfDestructTime = 1f; // 生成から何秒後に自動削除するか
 
+    [Header("エフェクト設定")]
+    public GameObject particlePrefab; // 生成するパーティクル
+    public float particleScale = 1f;  // パーティクルの大きさ
+    public Vector3 fixedRotation = Vector3.zero; // パーティクル生成時の固定角度
+
+    private List<Vector3> destroyedNPCPositions = new List<Vector3>();
+
     void Start()
     {
         // SphereCollider がなければ自動で追加
@@ -21,10 +29,8 @@ public class SphereNPCDestroyer : MonoBehaviour
             col.radius = 1f;
         }
 
-        // トリガー設定
         col.isTrigger = true;
 
-        // Rigidbody がなければ追加（トリガー判定を受け取るには必要）
         Rigidbody rb = GetComponent<Rigidbody>();
         if (rb == null)
         {
@@ -34,11 +40,9 @@ public class SphereNPCDestroyer : MonoBehaviour
         rb.useGravity = false;
         rb.isKinematic = true;
 
-        // 一定時間後に球を自壊
         Destroy(gameObject, selfDestructTime);
     }
 
-    // NPC が isTrigger = true の場合はこちらが呼ばれる
     void OnTriggerStay(Collider other)
     {
         if (other.CompareTag(targetTag))
@@ -47,7 +51,6 @@ public class SphereNPCDestroyer : MonoBehaviour
         }
     }
 
-    // NPC が isTrigger = false（通常のCollider）の場合はこちらが呼ばれる
     void OnCollisionStay(Collision collision)
     {
         if (collision.gameObject.CompareTag(targetTag))
@@ -59,8 +62,26 @@ public class SphereNPCDestroyer : MonoBehaviour
     void HandleDestroy(GameObject npc)
     {
         Vector3 npcPos = npc.transform.position;
-        Debug.Log($"SphereNPCDestroyer: NPC検出 - {npc.name} 位置: {npcPos}");
 
-        Destroy(npc, destroyDelay);
+        if (!destroyedNPCPositions.Contains(npcPos))
+        {
+            destroyedNPCPositions.Add(npcPos);
+            Debug.Log($"SphereNPCDestroyer: NPC検出 - {npc.name} 位置: {npcPos}");
+
+            Destroy(npc, destroyDelay);
+
+            // パーティクルを生成
+            if (particlePrefab != null)
+            {
+                Quaternion rotation = Quaternion.Euler(fixedRotation); // 固定角度を使用
+                GameObject particle = Instantiate(particlePrefab, npcPos, rotation);
+
+                // スケール調整
+                particle.transform.localScale = Vector3.one * particleScale;
+
+                // 任意で自動削除（5秒後など）
+                Destroy(particle, 5f);
+            }
+        }
     }
 }
