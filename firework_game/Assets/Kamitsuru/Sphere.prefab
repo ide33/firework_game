@@ -150,5 +150,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetTag: NPC
-  checkInterval: 2
-  destroyDelayAfterAll: 5
+  destroyDelay: 0
+  selfDestructTime: 1
+  particlePrefab: {fileID: 4656275142420581941, guid: eebd4198cae929f4883e70594350f6af, type: 3}
+  particleScale: 5
+  fixedRotation: {x: 0, y: -90, z: 0}
