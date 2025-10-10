@@ -1,41 +1,43 @@
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class OptionPopup : MonoBehaviour
-{
-    [SerializeField] private Button closeButton; // 閉じるボタン
-    [SerializeField] private GameObject optionScreen; // オプション画面のオブジェクト
-    [SerializeField] private Slider bgmSlider; // BGMのスライダー
-    [SerializeField] private Slider seSlider; // SEのスライダー
+{[Header("Buttons")]
+    [SerializeField] private Button quitButton;     // やめる（タイトルへ戻る）
+    [SerializeField] private Button retryButton;    // リトライ
+    [SerializeField] private Button helpButton;     // ヘルプ
+    [SerializeField] private Button closeButton;    // 閉じる（ポップアップ閉じる）
 
-    // 閉じるボタンにクリックイベントを追加
-    void Start()
+    private void Start()
     {
-        closeButton.onClick.AddListener(ClosePopup);
+        // 各ボタンのクリックイベント登録
+        quitButton.onClick.AddListener(ClosePopup);
+        retryButton.onClick.AddListener(OnRetry);
+        helpButton.onClick.AddListener(OnHelp);
     }
 
-    // 変更した音量のスライダーへの反映
-    private void OnEnable()
+    // リトライ（現在のシーンを再読み込み）
+    private void OnRetry()
     {
-        // bgmSlider.value = AudioManager.Instance.GetBGMVolume();
-        // seSlider.value = AudioManager.Instance.GetSEVolume();
-
-        // // スライダー操作時に音量を変更
-        // bgmSlider.onValueChanged.AddListener(AudioManager.Instance.SetBGMVolume);
-        // seSlider.onValueChanged.AddListener(AudioManager.Instance.SetSEVolume);
+        Time.timeScale = 1f; // ポーズ解除
+        Scene currentScene = SceneManager.GetActiveScene();
+        SceneManager.LoadScene(currentScene.name);
     }
 
-    private void OnDisable()
+    // ヘルプシーンへ
+    private void OnHelp()
     {
-        // //
-        // bgmSlider.onValueChanged.RemoveAllListeners();
-        // seSlider.onValueChanged.RemoveAllListeners();
+        Time.timeScale = 1f; // ポーズ解除
+        SceneManager.LoadScene("HelpScene"); // 実際のヘルプシーン名に変更
     }
 
     // ポップアップを閉じる
-    void ClosePopup()
+    private void ClosePopup()
     {
-        Destroy(optionScreen);
+        Time.timeScale = 1f; // ゲーム再開
+        Destroy(gameObject);
     }
+
 }
