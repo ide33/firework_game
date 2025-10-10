@@ -18,9 +18,9 @@ public class PopupManager : MonoBehaviour
         Instance = this;
     }
 
-    // IDでポップアップを開く
-    public void Open(GameObject popupPrefab)
+    // ポップアップを開く
+    public GameObject Open(GameObject popupPrefab)
     {
-        Instantiate(popupPrefab, canvas.transform);
+        return Instantiate(popupPrefab, canvas.transform);
     }
 }
