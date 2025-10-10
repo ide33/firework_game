@@ -70,7 +70,7 @@ public class RocketFirework : MonoBehaviour
         GameObject rocketInstance = Instantiate(rocketPrefab, npc.transform);
 
         // NPCの頭上などに少しずらしてつけたい場合
-        rocketInstance.transform.localPosition = new Vector3(0, 2f, 0);
+        rocketInstance.transform.localPosition = new Vector3(0, 1f, 0);
 
         Debug.Log($"{npc.name} にロケット花火を取り付けました！");
 
