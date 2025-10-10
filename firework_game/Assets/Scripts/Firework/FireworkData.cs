@@ -15,6 +15,9 @@ public class FireworkData : ScriptableObject
     // スコア
     [SerializeField] private int score;
 
+    // 3Dモデル
+    [SerializeField] private GameObject fireworkModel;
+
     // 効果音
     [SerializeField] private AudioClip fireworkSE;
     
@@ -23,5 +26,6 @@ public class FireworkData : ScriptableObject
     public float ExplosionDelay => explosionDelay;
     public float Range => range;
     public int Score => score;
+    public GameObject FireworkModel => fireworkModel;
     public AudioClip FireworkSE => fireworkSE;
 }

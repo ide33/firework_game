@@ -119,6 +119,37 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &501976592
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 501976593}
+  m_Layer: 0
+  m_Name: HandPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &501976593
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 501976592}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.6085838, y: -0.014715792, z: 0.25324208, w: 0.75184953}
+  m_LocalPosition: {x: 0.45, y: 0.28100002, z: 0.2840004}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 871886896}
+  m_LocalEulerAnglesHint: {x: 67.306, y: 47.867, z: 70.152}
 --- !u!1 &871886892
 GameObject:
   m_ObjectHideFlags: 0
@@ -230,6 +261,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1989523727}
+  - {fileID: 501976593}
+  - {fileID: 1306322897}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &871886897
@@ -251,6 +284,8 @@ MonoBehaviour:
   maxVerticalAngle: 90
   fireworkManager: {fileID: 2074051104}
   playerCamera: {fileID: 1989523726}
+  playerHandPrefab: {fileID: 919132149155446097, guid: 58f86a579dfbf4942a97c5b2779f1c69, type: 3}
+  handHoldPoint: {fileID: 501976593}
 --- !u!54 &871886898
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -278,6 +313,37 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0
+--- !u!1 &1306322896
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1306322897}
+  m_Layer: 0
+  m_Name: HoldPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1306322897
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1306322896}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.2, y: 0.27, z: 0.78}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 871886896}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1720727864
 GameObject:
   m_ObjectHideFlags: 0
@@ -674,6 +740,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fireworkLibrary: {fileID: 11400000, guid: 6af1f1436b6964643bf2ea36a85dd4fb, type: 2}
+  fireworkHoldPoint: {fileID: 1306322897}
 --- !u!4 &2074051105
 Transform:
   m_ObjectHideFlags: 0

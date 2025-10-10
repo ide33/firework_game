@@ -23,14 +23,24 @@ public class PlayerController : MonoBehaviour
     [Header("Camera Setting")]
     [SerializeField] private Camera playerCamera;
 
+    // プレイヤーの手
+    [Header("Hand Setting")]
+    [SerializeField] private GameObject playerHandPrefab;   // 手のモデルプレハブ
+    [SerializeField] private Transform handHoldPoint;       // 手を出す位置（空オブジェクト）
+
     private float verticalRotation = 0f;  // カメラの上下角度
     private float movex, movez;
+
+    private GameObject currentHandInstance;
 
     private void Start()
     {
         // カーソルを非表示
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        // 手モデルを生成
+        SpawnHand();
     }
 
     // カーソルロック、花火発射
@@ -82,5 +92,23 @@ public class PlayerController : MonoBehaviour
         moveDirection.Normalize();
 
         transform.position += moveDirection * moveSpeed * Time.fixedDeltaTime;
+    }
+
+    private void SpawnHand()
+    {
+        if (playerHandPrefab != null && handHoldPoint != null)
+        {
+            currentHandInstance = Instantiate(
+                playerHandPrefab,
+                handHoldPoint.position,
+                handHoldPoint.rotation,
+                handHoldPoint
+            );
+            Debug.Log("プレイヤーの手を生成しました");
+        }
+        else
+        {
+            Debug.LogWarning("手のPrefabまたはHoldPointが設定されていません");
+        }
     }
 }
