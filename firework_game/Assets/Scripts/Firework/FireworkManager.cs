@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class FireworkManager : MonoBehaviour
 {
@@ -10,7 +11,17 @@ public class FireworkManager : MonoBehaviour
 
     // 現在の花火
     private FireworkData currentFireworkData;
+
+    private Dictionary<FireworkData, GameObject> fireworkInstances = new(); // 花火ごとのインスタンス管理
+
+    private int currentIndex = -1; // 現在選択中のインデックス
     private GameObject currentFireworkInstance;
+
+    void Start()
+    {
+        // 起動時に全花火を生成して非表示にしておく
+        InitializeAllFireworks();
+    }
 
     void Update()
     {
@@ -20,56 +31,88 @@ public class FireworkManager : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha4)) SelectFirework(3);
     }
 
-    // 花火の切り替え 
-    void SelectFirework(int index)
+    private void InitializeAllFireworks()
     {
-        UnequipFirework();
-
-        currentFireworkData = fireworkLibrary.GetFireworkData(index);
-        if (currentFireworkData != null)
+        if (fireworkLibrary == null)
         {
-            Debug.Log($"{currentFireworkData.FireworkName} に切り替えました");
+            Debug.LogError("FireworkLibrary が設定されていません。");
+            return;
         }
 
-        // モデルをプレイヤーの持ち位置に生成
-        if (currentFireworkData.FireworkModel != null && fireworkHoldPoint != null)
+        foreach (var data in fireworkLibrary.GetAllFireworks())
         {
-            currentFireworkInstance = Instantiate(
-                currentFireworkData.FireworkModel,
+            if (data.FireworkModel == null)
+            {
+                Debug.LogWarning($"{data.FireworkName} のモデルが設定されていません。");
+                continue;
+            }
+
+            // 子オブジェクトとして生成（最初は非表示）
+            GameObject instance = Instantiate(
+                data.FireworkModel,
                 fireworkHoldPoint.position,
                 fireworkHoldPoint.rotation,
                 fireworkHoldPoint
             );
+            instance.SetActive(false);
+
+            fireworkInstances[data] = instance;
         }
 
-        Debug.Log($"{currentFireworkData.FireworkName} を装備しました");
+        Debug.Log($"全 {fireworkInstances.Count} 種類の花火を初期化しました。");
     }
 
-    // 花火を外す
-    void UnequipFirework()
+    // 花火の切り替え 
+    private void SelectFirework(int index)
     {
-        if (currentFireworkInstance != null)
+        if (fireworkLibrary == null) return;
+
+        FireworkData nextData = fireworkLibrary.GetFireworkData(index);
+        if (nextData == null) return;
+
+        // 現在の花火を非表示に
+        if (currentFireworkData != null && fireworkInstances.ContainsKey(currentFireworkData))
         {
-            Destroy(currentFireworkInstance);
-            currentFireworkInstance = null;
-            Debug.Log("花火を外しました");
+            fireworkInstances[currentFireworkData].SetActive(false);
+        }
+
+        // 新しい花火を表示
+        if (fireworkInstances.ContainsKey(nextData))
+        {
+            fireworkInstances[nextData].SetActive(true);
+            currentFireworkData = nextData;
+            currentIndex = index;
+            Debug.Log($"{currentFireworkData.FireworkName} を装備しました");
+        }
+        else
+        {
+            Debug.LogWarning($"{nextData.FireworkName} のインスタンスが見つかりません。");
         }
     }
+
+    void UnequipFirework()
+{
+    if (currentFireworkInstance != null)
+    {
+        // オブジェクトを破壊せずに非表示にする
+        currentFireworkInstance.SetActive(false);
+        Debug.Log("花火を非表示にしました");
+    }
+}
 
     // 花火発射
     public void LaunchFirework()
     {
         if (currentFireworkData == null)
         {
-            Debug.LogWarning("花火が選択されていません");
+            Debug.LogWarning("花火が選択されていません。");
             return;
         }
 
         StartCoroutine(Launch());
-        Debug.Log($"{currentFireworkData.FireworkName} を打ち上げました");
+        Debug.Log($"{currentFireworkData.FireworkName} を打ち上げました！");
     }
 
-    // 爆発までのディレイ
     private System.Collections.IEnumerator Launch()
     {
         if (currentFireworkData.FireworkSE != null)
@@ -79,7 +122,7 @@ public class FireworkManager : MonoBehaviour
 
         yield return new WaitForSeconds(currentFireworkData.ExplosionDelay);
 
-        Debug.Log($"{currentFireworkData.FireworkName} が爆発しました");
+        Debug.Log($"{currentFireworkData.FireworkName} が爆発しました！");
     }
 
     public FireworkData CurrentFireworkData => currentFireworkData;

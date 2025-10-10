@@ -14,5 +14,7 @@ public class FireworkLibrary : ScriptableObject
             return null;
         }
         return fireworkDatas[index];
-    } 
+    }
+
+    public FireworkData[] GetAllFireworks() => fireworkDatas;
 }
