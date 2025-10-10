@@ -48,17 +48,17 @@ public class PlayerController : MonoBehaviour
     {
         HandleMouseLock();
 
-        if (Input.GetMouseButtonDown(0))
-        {
-            if (fireworkManager != null)
-            {
-                fireworkManager.LaunchFirework();
-            }
-            else
-            {
-                Debug.Log("FireworkManagerが設定されていません");
-            }
-        }
+        // if (Input.GetMouseButtonDown(0))
+        // {
+        //     if (fireworkManager != null)
+        //     {
+        //         fireworkManager.LaunchFirework();
+        //     }
+        //     else
+        //     {
+        //         Debug.Log("FireworkManagerが設定されていません");
+        //     }
+        // }
     }
 
     // 物理演算のタイミングで呼ばれる

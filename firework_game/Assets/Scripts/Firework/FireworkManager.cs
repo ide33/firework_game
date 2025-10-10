@@ -44,7 +44,7 @@ public class FireworkManager : MonoBehaviour
 
         Debug.Log($"{currentFireworkData.FireworkName} を装備しました");
     }
-    
+
     // 花火を外す
     void UnequipFirework()
     {
@@ -64,7 +64,7 @@ public class FireworkManager : MonoBehaviour
             Debug.LogWarning("花火が選択されていません");
             return;
         }
-            
+
         StartCoroutine(Launch());
         Debug.Log($"{currentFireworkData.FireworkName} を打ち上げました");
     }
@@ -72,13 +72,15 @@ public class FireworkManager : MonoBehaviour
     // 爆発までのディレイ
     private System.Collections.IEnumerator Launch()
     {
-       if (currentFireworkData.FireworkSE != null)
-       {
-           AudioSource.PlayClipAtPoint(currentFireworkData.FireworkSE, Vector3.zero);
-       }
+        if (currentFireworkData.FireworkSE != null)
+        {
+            AudioSource.PlayClipAtPoint(currentFireworkData.FireworkSE, Vector3.zero);
+        }
 
-       yield return new WaitForSeconds(currentFireworkData.ExplosionDelay);
+        yield return new WaitForSeconds(currentFireworkData.ExplosionDelay);
 
-       Debug.Log($"{currentFireworkData.FireworkName} が爆発しました");
+        Debug.Log($"{currentFireworkData.FireworkName} が爆発しました");
     }
+
+    public FireworkData CurrentFireworkData => currentFireworkData;
 }

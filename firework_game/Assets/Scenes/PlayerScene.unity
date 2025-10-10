@@ -323,13 +323,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 871886892}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 47a33e9d01294d443aeecfebcb7b1cfc, type: 3}
+  m_Script: {fileID: 11500000, guid: 104a853752055e24f80e1b9e87c53717, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  npcTag: NPC
-  searchRadius: 2
-  rocketPrefab: {fileID: 96760523068736523, guid: 390ff9b421605e54da4709fe1019d227, type: 3}
-  firePoint: {fileID: 1306322897}
+  fireworkManager: {fileID: 2074051104}
 --- !u!1 &1306322896
 GameObject:
   m_ObjectHideFlags: 0
