@@ -3,11 +3,15 @@ using UnityEngine;
 public class PlayerFireworkLauncher : MonoBehaviour
 {
     [Header("参照設定")]
-    [SerializeField] private FireworkManager fireworkManager; // FireworkManagerをInspectorで指定
+    [SerializeField]
+    private FireworkManager fireworkManager; // FireworkManagerをInspectorで指定
 
     [Header("NPC探索設定")]
-    [SerializeField] private string npcTag = "NPC";     // 対象となるタグ
-    [SerializeField] private float searchRadius = 10f;  // 探索範囲
+    [SerializeField]
+    private string npcTag = "NPC"; // 対象となるタグ
+
+    [SerializeField]
+    private float searchRadius = 10f; // 探索範囲
 
     void Update()
     {
@@ -70,7 +74,8 @@ public class PlayerFireworkLauncher : MonoBehaviour
         }
 
         // NPCに花火を生成してアタッチ
-        GameObject instance = Instantiate(fireworkData.FireworkModel, npc.transform);
+        GameObject prefab = fireworkData.FireworkModel;
+        GameObject instance = Instantiate(prefab, npc.transform);
         instance.transform.localPosition = new Vector3(0, 1f, 0);
 
         Debug.Log($"{npc.name} に {fireworkData.FireworkName} を取り付けました！");

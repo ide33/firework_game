@@ -31,7 +31,7 @@ public class PlayerParticleShooter : MonoBehaviour
     void Update()
     {
         // firePointが存在し、アクティブなときのみ処理する
-        if (firePoint != null && firePoint.gameObject.activeSelf)
+        if (firePoint != null && firePoint.gameObject.activeInHierarchy && HasActiveChild(firePoint))
         {
             // 左クリックを検出
             if (Input.GetMouseButtonDown(0))
@@ -44,6 +44,17 @@ public class PlayerParticleShooter : MonoBehaviour
             }
         }
     }
+
+    private bool HasActiveChild(Transform parent)
+    {
+        foreach (Transform child in parent)
+        {
+            if (child.gameObject.activeInHierarchy)
+                return true;
+        }
+        return false;
+    }
+
 
     void ShootParticle()
     {

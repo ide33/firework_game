@@ -6,30 +6,44 @@ public class PlayerController : MonoBehaviour
 {
     // 移動速度
     [Header("Movement Setting")]
-    [SerializeField] private float moveSpeed = 3f;
+    [SerializeField]
+    private float moveSpeed = 3f;
 
     // マウス感度
     [Header("Mouse Setting")]
-    [SerializeField] private float sensitivityX = 2.5f;
-    [SerializeField] private float sensitivityY = 2.5f;
-    [SerializeField] private float minVerticalAngle = -90f;
-    [SerializeField] private float maxVerticalAngle = 90f;
+    [SerializeField]
+    private float sensitivityX = 2.5f;
+
+    [SerializeField]
+    private float sensitivityY = 2.5f;
+
+    [SerializeField]
+    private float minVerticalAngle = -90f;
+
+    [SerializeField]
+    private float maxVerticalAngle = 90f;
 
     // FireworkManagerの参照
     [Header("Firework Reference")]
-    [SerializeField] private FireworkManager fireworkManager;
+    [SerializeField]
+    private FireworkManager fireworkManager;
 
     // カメラ参照
     [Header("Camera Setting")]
-    [SerializeField] private Camera playerCamera;
+    [SerializeField]
+    private Camera playerCamera;
 
     // プレイヤーの手
     [Header("Hand Setting")]
-    [SerializeField] private GameObject playerHandPrefab;   // 手のモデルプレハブ
-    [SerializeField] private Transform handHoldPoint;       // 手を出す位置（空オブジェクト）
+    [SerializeField]
+    private GameObject playerHandPrefab; // 手のモデルプレハブ
 
-    private float verticalRotation = 0f;  // カメラの上下角度
-    private float movex, movez;
+    [SerializeField]
+    private Transform handHoldPoint; // 手を出す位置（空オブジェクト）
+
+    private float verticalRotation = 0f; // カメラの上下角度
+    private float movex,
+        movez;
 
     private GameObject currentHandInstance;
 
