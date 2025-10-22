@@ -305,6 +305,18 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4519548336616383657, guid: 0433eedd7fadf2e4586792ca5cd0779c, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519548336616383657, guid: 0433eedd7fadf2e4586792ca5cd0779c, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519548336616383657, guid: 0433eedd7fadf2e4586792ca5cd0779c, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519548336616383657, guid: 0433eedd7fadf2e4586792ca5cd0779c, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -710,6 +722,18 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3288975291540381699, guid: 87b96f2eabd7cde4b9f6eab41ae26bda, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3288975291540381699, guid: 87b96f2eabd7cde4b9f6eab41ae26bda, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3288975291540381699, guid: 87b96f2eabd7cde4b9f6eab41ae26bda, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3288975291540381699, guid: 87b96f2eabd7cde4b9f6eab41ae26bda, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -826,6 +850,10 @@ PrefabInstance:
     - target: {fileID: 4313753077531744214, guid: 3f2a30ce4961a2643869355ef5dd4840, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4336961597622459214, guid: 3f2a30ce4961a2643869355ef5dd4840, type: 3}
+      propertyPath: m_SortingOrder
+      value: 10
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -960,7 +988,7 @@ SceneRoots:
   - {fileID: 69165734}
   - {fileID: 1999008167}
   - {fileID: 1454498651}
-  - {fileID: 997753080}
   - {fileID: 1935834263}
-  - {fileID: 483577750}
+  - {fileID: 997753080}
   - {fileID: 1932576627}
+  - {fileID: 483577750}
