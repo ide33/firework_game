@@ -9,6 +9,9 @@ public class PopupController : MonoBehaviour
     // Resultポップアップ
     [SerializeField] private GameObject resultPopup;
 
+    // Helpのポップアップ
+    [SerializeField] private GameObject helpPopup;
+
     // 現在のポップアップ
     private GameObject currentPopup;
 

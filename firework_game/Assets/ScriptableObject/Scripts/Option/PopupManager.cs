@@ -21,6 +21,9 @@ public class PopupManager : MonoBehaviour
     // ポップアップを開く
     public GameObject Open(GameObject popupPrefab)
     {
-        return Instantiate(popupPrefab, canvas.transform);
+        Debug.Log($"ポップアップ生成開始: {popupPrefab.name}");
+        var popup = Instantiate(popupPrefab, canvas.transform);
+        Debug.Log($"ポップアップ生成完了: {popup.name}");
+        return popup;
     }
 }
