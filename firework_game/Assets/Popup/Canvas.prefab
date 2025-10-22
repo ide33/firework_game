@@ -195,6 +195,10 @@ PrefabInstance:
       value: PopupController
       objectReference: {fileID: 0}
     - target: {fileID: 8956389709962386870, guid: 79a2c663383890c4b9ae53fda5ad3e41, type: 3}
+      propertyPath: helpPopup
+      value: 
+      objectReference: {fileID: 260276180904886283, guid: 13b42d0d0175bd74cac411d63b49fd70, type: 3}
+    - target: {fileID: 8956389709962386870, guid: 79a2c663383890c4b9ae53fda5ad3e41, type: 3}
       propertyPath: optionPopup
       value: 
       objectReference: {fileID: 504974154100863178, guid: 0e979a3aa7a45e247b194353f9402925, type: 3}
