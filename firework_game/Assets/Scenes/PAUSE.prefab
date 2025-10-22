@@ -217,6 +217,7 @@ MonoBehaviour:
   retryButton: {fileID: 5060307531341126469}
   helpButton: {fileID: 5414720124554281349}
   closeButton: {fileID: 0}
+  helpPopup: {fileID: 260276180904886283, guid: 13b42d0d0175bd74cac411d63b49fd70, type: 3}
 --- !u!1 &2385254343630915092
 GameObject:
   m_ObjectHideFlags: 0
