@@ -20,21 +20,21 @@ public class PopupController : MonoBehaviour
         // Escapeキーが押されたとき
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            // すでに何かポップアップが開いているなら何もしない
+            if (PopupManager.Instance.HasActivePopup())
+            {
+                return;
+            }
+
             // ポップアップが未表示なら開く
-            if (currentPopup == null)
-            {
-                currentPopup = PopupManager.Instance.Open(optionPopup);
-                Time.timeScale = 0f; // ポーズ
-            }
-            else
-            {
-                ClosePopup();
-            }
+            currentPopup = PopupManager.Instance.Open(optionPopup);
+            Time.timeScale = 0f; // ポーズ
         }
     }
 
+
     // ポップアップを閉じる
-    private void ClosePopup()
+    public void ClosePopup()
     {
         if (currentPopup != null)
         {

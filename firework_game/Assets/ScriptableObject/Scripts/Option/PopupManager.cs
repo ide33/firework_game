@@ -4,6 +4,7 @@ public class PopupManager : MonoBehaviour
 {
     // PopupManagerのシングルトン
     public static PopupManager Instance { get; private set; }
+
     [SerializeField] private Canvas canvas;
 
     // Awakeでインスタンスを設定
@@ -21,9 +22,11 @@ public class PopupManager : MonoBehaviour
     // ポップアップを開く
     public GameObject Open(GameObject popupPrefab)
     {
-        Debug.Log($"ポップアップ生成開始: {popupPrefab.name}");
-        var popup = Instantiate(popupPrefab, canvas.transform);
-        Debug.Log($"ポップアップ生成完了: {popup.name}");
-        return popup;
+        return Instantiate(popupPrefab, canvas.transform);
+    }
+
+    public bool HasActivePopup()
+    {
+        return canvas.transform.childCount > 0;
     }
 }

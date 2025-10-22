@@ -9,13 +9,10 @@ public class OptionPopup : MonoBehaviour
     [SerializeField] private Button quitButton;     // やめる（タイトルへ戻る）
     [SerializeField] private Button retryButton;    // リトライ
     [SerializeField] private Button helpButton;     // ヘルプ
-    [SerializeField] private Button closeButton;    // 閉じる（ポップアップ閉じる）
 
     [Header("Popups")]
     [SerializeField] private GameObject helpPopup;  // Helpのポップアップ
 
-    // 現在のポップアップ
-    private GameObject currentPopup;
 
     private void Start()
     {
@@ -36,22 +33,11 @@ public class OptionPopup : MonoBehaviour
     // ヘルプシーンへ
     private void OnHelp()
     {
-        Debug.Log("Helpボタンが押されました");
+        // ポーズ画面を閉じる
+        Destroy(gameObject);
 
-        if (helpPopup == null)
-        {
-            Debug.LogError("helpPopupPrefab が設定されていません！");
-            return;
-        }
-
-        if (PopupManager.Instance == null)
-        {
-            Debug.LogError("PopupManager.Instance が存在しません！");
-            return;
-        }
-
-        currentPopup = PopupManager.Instance.Open(helpPopup);
-        Debug.Log("Helpポップアップを開きました");
+        // ヘルプポップアップを開く
+        PopupManager.Instance.Open(helpPopup);
     }
 
     // ポップアップを閉じる
