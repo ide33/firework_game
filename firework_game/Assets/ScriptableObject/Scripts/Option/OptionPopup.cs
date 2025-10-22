@@ -28,6 +28,8 @@ public class OptionPopup : MonoBehaviour
         Time.timeScale = 1f; // ポーズ解除
         Scene currentScene = SceneManager.GetActiveScene();
         SceneManager.LoadScene(currentScene.name);
+
+        ReLockCursor();
     }
 
     // ヘルプシーンへ
@@ -45,5 +47,12 @@ public class OptionPopup : MonoBehaviour
     {
         Time.timeScale = 1f; // ゲーム再開
         Destroy(gameObject);
+        ReLockCursor();
+    }
+
+    private void ReLockCursor()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 }

@@ -12,6 +12,8 @@ public class PopupController : MonoBehaviour
     // Helpのポップアップ
     [SerializeField] private GameObject helpPopup;
 
+    [SerializeField] private PlayerController playerController;
+
     // 現在のポップアップ
     private GameObject currentPopup;
 
@@ -29,6 +31,10 @@ public class PopupController : MonoBehaviour
             // ポップアップが未表示なら開く
             currentPopup = PopupManager.Instance.Open(optionPopup);
             Time.timeScale = 0f; // ポーズ
+
+            // プレイヤー操作を停止
+            if (playerController != null)
+                playerController.SetPaused(true);
         }
     }
 
@@ -41,6 +47,10 @@ public class PopupController : MonoBehaviour
             Destroy(currentPopup);
             currentPopup = null;
             Time.timeScale = 1f; // 再開
+
+            // プレイヤー操作を再開
+            if (playerController != null)
+                playerController.SetPaused(false);
         }
     }
 }

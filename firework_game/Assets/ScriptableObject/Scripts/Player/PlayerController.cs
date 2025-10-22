@@ -47,6 +47,9 @@ public class PlayerController : MonoBehaviour
 
     private GameObject currentHandInstance;
 
+    private bool isPaused = false;
+
+
     private void Start()
     {
         // カーソルを非表示
@@ -60,6 +63,10 @@ public class PlayerController : MonoBehaviour
     // カーソルロック、花火発射
     private void Update()
     {
+        // 一時停止中はマウスや移動処理を止める
+        if (isPaused)
+            return;
+            
         HandleMouseLock();
     }
 
@@ -111,6 +118,25 @@ public class PlayerController : MonoBehaviour
         else
         {
             Debug.LogWarning("手のPrefabまたはHoldPointが設定されていません");
+        }
+    }
+
+    // ポーズ状態の設定
+    public void SetPaused(bool paused)
+    {
+        isPaused = paused;
+
+        if (paused)
+        {
+            // マウス操作を無効にし、カーソルを表示
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+        else
+        {
+            // ゲーム再開時に再びロック
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
     }
 }
