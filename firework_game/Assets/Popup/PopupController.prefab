@@ -114,4 +114,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee36d8aa6c8840a47bd7c9a167d4b07b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  popupPrefab: {fileID: 504974154100863178, guid: 0e979a3aa7a45e247b194353f9402925, type: 3}
+  optionPopup: {fileID: 504974154100863178, guid: 0e979a3aa7a45e247b194353f9402925, type: 3}
+  resultPopup: {fileID: 709800589556101589, guid: 87b96f2eabd7cde4b9f6eab41ae26bda, type: 3}
+  helpPopup: {fileID: 260276180904886283, guid: 13b42d0d0175bd74cac411d63b49fd70, type: 3}
