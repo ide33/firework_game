@@ -1,0 +1,31 @@
+using System;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class CountDown : MonoBehaviour
+{
+    public int countdownMinutes = 3;
+    private float countdownSeconds;
+    private Text TimerText;
+    private Text TIMEUPText;
+
+    private void Start()
+    {
+        TimerText = GetComponent<Text>();
+        TIMEUPText = GetComponent<Text>();
+        countdownSeconds = countdownMinutes * 60;
+    }
+
+    void Update()
+    {
+        countdownSeconds -= Time.deltaTime;
+        var span = new TimeSpan(0, 0, (int)countdownSeconds);
+        TimerText.text = span.ToString(@"m\:ss");
+
+
+        if (countdownSeconds <= 0)
+        {
+            TIMEUPText.text = "TIME UP";
+        }
+    }
+}

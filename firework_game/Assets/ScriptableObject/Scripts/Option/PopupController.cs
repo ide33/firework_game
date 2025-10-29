@@ -1,0 +1,56 @@
+using UnityEngine;
+using UnityEngine.UI;
+
+public class PopupController : MonoBehaviour
+{
+    // optionポップアップ
+    [SerializeField] private GameObject optionPopup;
+
+    // Resultポップアップ
+    [SerializeField] private GameObject resultPopup;
+
+    // Helpのポップアップ
+    [SerializeField] private GameObject helpPopup;
+
+    [SerializeField] private PlayerController playerController;
+
+    // 現在のポップアップ
+    private GameObject currentPopup;
+
+    void Update()
+    {
+        // Escapeキーが押されたとき
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            // すでに何かポップアップが開いているなら何もしない
+            if (PopupManager.Instance.HasActivePopup())
+            {
+                return;
+            }
+
+            // ポップアップが未表示なら開く
+            currentPopup = PopupManager.Instance.Open(optionPopup);
+            Time.timeScale = 0f; // ポーズ
+
+            // プレイヤー操作を停止
+            if (playerController != null)
+                playerController.SetPaused(true);
+        }
+    }
+
+
+    // ポップアップを閉じる
+    public void ClosePopup()
+    {
+        if (currentPopup != null)
+        {
+            Destroy(currentPopup);
+            currentPopup = null;
+            Time.timeScale = 1f; // 再開
+
+            // プレイヤー操作を再開
+            if (playerController != null)
+                playerController.SetPaused(false);
+        }
+    }
+}
