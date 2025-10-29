@@ -12,6 +12,14 @@ public class HelpPopup : MonoBehaviour
 
     private void CloseHelp()
     {
+        // 時間を再開
+        Time.timeScale = 1f;
+
+        // プレイヤー操作を再開
+        var player = FindAnyObjectByType<PlayerController>();
+        if (player != null)
+            player.SetPaused(false);
+
         Destroy(gameObject);
     }
 }

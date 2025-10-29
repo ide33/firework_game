@@ -48,6 +48,11 @@ public class OptionPopup : MonoBehaviour
         Time.timeScale = 1f; // ゲーム再開
         Destroy(gameObject);
         ReLockCursor();
+
+        // PlayerControllerのポーズを解除
+        var player = FindAnyObjectByType<PlayerController>();
+        if (player != null)
+            player.SetPaused(false);
     }
 
     private void ReLockCursor()
